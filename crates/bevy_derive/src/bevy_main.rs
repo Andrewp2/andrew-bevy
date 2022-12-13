@@ -4,10 +4,6 @@ use syn::{parse_macro_input, Ident, ItemFn};
 
 pub fn bevy_main(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut input = parse_macro_input!(item as ItemFn);
-    assert!(
-        input.sig.ident == "main",
-        "`bevy_main` can only be used on a function called 'main'.",
-    );
 
     let boiler_plate = TokenStream::from(quote! {
         // use ndk-glue macro to create an activity: https://github.com/rust-windowing/android-ndk-rs/tree/master/ndk-macro
@@ -26,7 +22,12 @@ pub fn bevy_main(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #[allow(unused)]
         #input
     });
+
     let mut output = vec![boiler_plate];
+    assert!(
+        input.sig.ident == "main",
+        "`bevy_main` can only be used on a function called 'main'.",
+    );
     if let Some(_) = input.sig.asyncness {
         input.sig.ident = Ident::new("main_async", input.sig.ident.span());
         let main = TokenStream::from(quote! {
