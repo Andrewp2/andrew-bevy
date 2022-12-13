@@ -35,8 +35,9 @@ pub fn bevy_main(_attr: TokenStream, item: TokenStream) -> TokenStream {
             }
         });
         output.push(main);
+    } else {
+        let item: TokenStream = input.to_token_stream().into();
+        output.push(item);
     }
-    let item: TokenStream = input.to_token_stream().into();
-    output.push(item);
     TokenStream::from_iter(output)
 }
