@@ -20,7 +20,6 @@ pub fn bevy_main(_attr: TokenStream, item: TokenStream) -> TokenStream {
         }
 
         #[allow(unused)]
-        #input
     });
 
     let mut output = vec![boiler_plate];
