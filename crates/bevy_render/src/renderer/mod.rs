@@ -14,7 +14,7 @@ use bevy_ecs::prelude::*;
 use bevy_time::TimeSender;
 use bevy_utils::Instant;
 use std::sync::Arc;
-use wgpu::{AdapterInfo, CommandEncoder, Instance, Queue, RequestAdapterOptions};
+use wgpu::{AdapterInfo, Backends, CommandEncoder, Instance, Queue, RequestAdapterOptions};
 
 /// Updates the [`RenderGraph`] with all of its nodes and then runs it to render the entire frame.
 pub fn render_system(world: &mut World) {
@@ -98,6 +98,9 @@ pub async fn initialize_renderer(
     request_adapter_options: &RequestAdapterOptions<'_>,
 ) -> (RenderDevice, RenderQueue, AdapterInfo) {
     info!("request_adapter_options: {:?}", request_adapter_options);
+    instance
+        .enumerate_adapters(Backends::all())
+        .for_each(|adapter| info!("This adapter is available: {:?}", adapter));
     let adapter = instance
         .request_adapter(request_adapter_options)
         .await
