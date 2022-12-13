@@ -19,6 +19,7 @@ pub mod texture;
 pub mod view;
 
 use anyhow::Result;
+use bevy_log::info;
 pub use extract_param::Extract;
 
 pub mod prelude {
@@ -151,6 +152,8 @@ impl Plugin for RenderPlugin {
                 };
                 if surface.is_none() {
                     panic!("Could find surface!");
+                } else {
+                    info!("we found a surface!");
                 }
                 let request_adapter_options = wgpu::RequestAdapterOptions {
                     power_preference: options.power_preference,
