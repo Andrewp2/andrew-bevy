@@ -102,6 +102,13 @@ pub async fn initialize_renderer(
         .await
         .expect("Unable to find a GPU! Make sure you have installed required drivers!");
 
+    if let Some(surface) = request_adapter_options.compatible_surface {
+        info!(
+            "supported surface formats (first is preferred): {:?}",
+            surface.get_supported_formats(&adapter)
+        );
+    }
+
     let adapter_info = adapter.get_info();
     info!("{:?}", adapter_info);
 
