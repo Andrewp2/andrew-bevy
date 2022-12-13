@@ -1,4 +1,6 @@
 use crate::App;
+use anyhow::Result;
+use bevy_utils::NonSendBoxedFuture;
 use std::any::Any;
 
 /// A collection of Bevy app logic and configuration.
@@ -11,6 +13,10 @@ pub trait Plugin: Any + Send + Sync {
     /// Configures a name for the [`Plugin`] which is primarily used for debugging.
     fn name(&self) -> &str {
         std::any::type_name::<Self>()
+    }
+    fn build_async<'a>(&'a self, app: &'a mut App) -> NonSendBoxedFuture<'a, Result<()>> {
+        self.build(app);
+        Box::pin(async move { Ok(()) })
     }
 }
 

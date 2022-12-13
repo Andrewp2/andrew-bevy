@@ -2,6 +2,7 @@
 #![doc = include_str!("../README.md")]
 
 mod slice;
+use futures_lite::Future;
 pub use slice::{ParallelSlice, ParallelSliceMut};
 
 mod task;
@@ -35,3 +36,11 @@ pub mod prelude {
 
 pub use num_cpus::get as logical_core_count;
 pub use num_cpus::get_physical as physical_core_count;
+
+pub fn run_async<T: 'static>(future: impl Future<Output = T> + 'static) {
+    #[cfg(target_arch = "wasm32")]
+    TaskPool::default().spawn_local(future);
+
+    #[cfg(not(target_arch = "wasm32"))]
+    futures_lite::future::block_on(future);
+}

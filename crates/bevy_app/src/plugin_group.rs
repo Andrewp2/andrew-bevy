@@ -1,5 +1,6 @@
 use crate::{App, Plugin};
-use bevy_utils::{tracing::debug, tracing::warn, HashMap};
+use anyhow::Result;
+use bevy_utils::{tracing::debug, tracing::warn, HashMap, NonSendBoxedFuture};
 use std::any::TypeId;
 
 /// Combines multiple [`Plugin`]s into a single unit.
@@ -136,6 +137,20 @@ impl PluginGroupBuilder {
                 }
             }
         }
+    }
+
+    pub fn finish_async<'a>(self, app: &'a mut App) -> NonSendBoxedFuture<'a, Result<&'a mut App>> {
+        Box::pin(async move {
+            for ty in self.order.iter() {
+                if let Some(entry) = self.plugins.get(ty) {
+                    if entry.enabled {
+                        debug!("added plugin: {}", entry.plugin.name());
+                        entry.plugin.build_async(app).await.unwrap();
+                    }
+                }
+            }
+            Ok(app)
+        })
     }
 }
 

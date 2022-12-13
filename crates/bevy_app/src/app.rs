@@ -1,4 +1,5 @@
 use crate::{CoreStage, Plugin, PluginGroup, PluginGroupBuilder, StartupSchedule, StartupStage};
+use anyhow::Result;
 pub use bevy_derive::AppLabel;
 use bevy_ecs::{
     event::{Event, Events},
@@ -10,7 +11,7 @@ use bevy_ecs::{
     system::Resource,
     world::World,
 };
-use bevy_utils::{tracing::debug, HashMap};
+use bevy_utils::{tracing::debug, HashMap, NonSendBoxedFuture};
 use std::fmt::Debug;
 
 #[cfg(feature = "trace")]
@@ -785,6 +786,30 @@ impl App {
         debug!("added plugin: {}", plugin.name());
         plugin.build(self);
         self
+    }
+
+    pub fn add_plugin_async<'a, T>(
+        &'a mut self,
+        plugin: &'a T,
+    ) -> NonSendBoxedFuture<'a, Result<&'a mut Self>>
+    where
+        T: Plugin,
+    {
+        debug!("adding plugin: {}", plugin.name());
+        //let app = Arc::new(RwLock::new(self));
+        Box::pin(async move {
+            plugin.build_async(self).await.unwrap();
+            Ok(self)
+        })
+    }
+
+    pub fn add_plugins_async<'a, T: PluginGroup>(
+        &'a mut self,
+        mut group: T,
+    ) -> NonSendBoxedFuture<'a, Result<&'a mut Self>> {
+        let mut plugin_group_builder = PluginGroupBuilder::default();
+        group.build(&mut plugin_group_builder);
+        Box::pin(async move { plugin_group_builder.finish_async(self).await })
     }
 
     /// Adds a group of [`Plugin`]s.

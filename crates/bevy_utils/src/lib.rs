@@ -28,12 +28,13 @@ use std::{
     ops::Deref,
     pin::Pin,
 };
+pub type NonSendBoxedFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a>>;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub type BoxedFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
 
 #[cfg(target_arch = "wasm32")]
-pub type BoxedFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a>>;
+pub type BoxedFuture<'a, T> = NonSendBoxedFuture<'a, T>;
 
 pub type Entry<'a, K, V> = hashbrown::hash_map::Entry<'a, K, V, RandomState>;
 
