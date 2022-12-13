@@ -24,8 +24,8 @@ pub fn bevy_main(_attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let mut output = vec![boiler_plate];
     assert!(
-        input.sig.ident == "main",
-        "`bevy_main` can only be used on a function called 'main'.",
+        input.sig.ident == "bevy_main",
+        "`bevy_main` can only be used on a function called 'bevy_main'.",
     );
     if let Some(_) = input.sig.asyncness {
         input.sig.ident = Ident::new("main_async", input.sig.ident.span());
