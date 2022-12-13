@@ -19,7 +19,6 @@ pub mod texture;
 pub mod view;
 
 use anyhow::Result;
-use bevy_log::info;
 pub use extract_param::Extract;
 
 pub mod prelude {
