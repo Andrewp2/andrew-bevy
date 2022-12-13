@@ -97,17 +97,16 @@ pub async fn initialize_renderer(
     options: &WgpuSettings,
     request_adapter_options: &RequestAdapterOptions<'_>,
 ) -> (RenderDevice, RenderQueue, AdapterInfo) {
-    let adapter = instance
-        .request_adapter(request_adapter_options)
-        .await
-        .expect("Unable to find a GPU! Make sure you have installed required drivers!");
-
     if let Some(surface) = request_adapter_options.compatible_surface {
         info!(
             "supported surface formats (first is preferred): {:?}",
             surface.get_supported_formats(&adapter)
         );
     }
+    let adapter = instance
+        .request_adapter(request_adapter_options)
+        .await
+        .expect("Unable to find a GPU! Make sure you have installed required drivers!");
 
     let adapter_info = adapter.get_info();
     info!("{:?}", adapter_info);
