@@ -149,6 +149,9 @@ impl Plugin for RenderPlugin {
                     });
                     raw_handle
                 };
+                if surface.is_none() {
+                    panic!("Could find surface!");
+                }
                 let request_adapter_options = wgpu::RequestAdapterOptions {
                     power_preference: options.power_preference,
                     compatible_surface: surface.as_ref(),
