@@ -75,9 +75,9 @@ pub const SHADOW_SHADER_HANDLE: HandleUntyped =
 /// Sets up the entire PBR infrastructure of bevy.
 #[derive(Default)]
 pub struct PbrPlugin;
-
+#[async_trait]
 impl Plugin for PbrPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         load_internal_asset!(
             app,
             PBR_TYPES_SHADER_HANDLE,

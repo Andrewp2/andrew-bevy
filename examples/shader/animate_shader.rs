@@ -59,9 +59,9 @@ fn setup(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
 struct CustomMaterial;
 
 pub struct CustomMaterialPlugin;
-
+#[async_trait]
 impl Plugin for CustomMaterialPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         let render_device = app.world.resource::<RenderDevice>();
         let buffer = render_device.create_buffer(&BufferDescriptor {
             label: Some("time uniform buffer"),

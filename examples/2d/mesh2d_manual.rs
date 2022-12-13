@@ -261,9 +261,9 @@ pub struct ColoredMesh2dPlugin;
 /// Handle to the custom shader with a unique random ID
 pub const COLORED_MESH2D_SHADER_HANDLE: HandleUntyped =
     HandleUntyped::weak_from_u64(Shader::TYPE_UUID, 13828845428412094821);
-
+#[async_trait]
 impl Plugin for ColoredMesh2dPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         // Load our custom shader
         let mut shaders = app.world.resource_mut::<Assets<Shader>>();
         shaders.set_untracked(

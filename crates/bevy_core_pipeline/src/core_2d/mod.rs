@@ -31,9 +31,9 @@ use bevy_utils::FloatOrd;
 use std::ops::Range;
 
 pub struct Core2dPlugin;
-
+#[async_trait]
 impl Plugin for Core2dPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.register_type::<Camera2d>()
             .add_plugin(ExtractComponentPlugin::<Camera2d>::default());
 

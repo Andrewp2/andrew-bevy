@@ -21,9 +21,9 @@ pub struct WindowRenderPlugin;
 pub enum WindowSystem {
     Prepare,
 }
-
+#[async_trait]
 impl Plugin for WindowRenderPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         if let Ok(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app
                 .init_resource::<ExtractedWindows>()

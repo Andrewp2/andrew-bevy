@@ -13,9 +13,9 @@ pub const COLOR_MATERIAL_SHADER_HANDLE: HandleUntyped =
 
 #[derive(Default)]
 pub struct ColorMaterialPlugin;
-
+#[async_trait]
 impl Plugin for ColorMaterialPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         load_internal_asset!(
             app,
             COLOR_MATERIAL_SHADER_HANDLE,

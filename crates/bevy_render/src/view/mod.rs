@@ -27,9 +27,9 @@ use bevy_transform::components::GlobalTransform;
 use bevy_utils::HashMap;
 
 pub struct ViewPlugin;
-
+#[async_trait]
 impl Plugin for ViewPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.register_type::<Msaa>()
             .init_resource::<Msaa>()
             // NOTE: windows.is_changed() handles cases where a window was resized

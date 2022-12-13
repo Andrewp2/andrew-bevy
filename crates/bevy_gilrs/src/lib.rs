@@ -10,9 +10,9 @@ use gilrs_system::{gilrs_event_startup_system, gilrs_event_system};
 
 #[derive(Default)]
 pub struct GilrsPlugin;
-
+#[async_trait]
 impl Plugin for GilrsPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         match GilrsBuilder::new()
             .with_default_filters(false)
             .set_update_state(false)

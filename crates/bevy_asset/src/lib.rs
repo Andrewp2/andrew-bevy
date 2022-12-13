@@ -97,9 +97,9 @@ pub fn create_platform_default_asset_io(app: &mut App) -> Box<dyn AssetIo> {
 
     Box::new(source)
 }
-
+#[async_trait]
 impl Plugin for AssetPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         if !app.world.contains_resource::<AssetServer>() {
             let source = create_platform_default_asset_io(app);
             let asset_server = AssetServer::with_boxed_io(source);

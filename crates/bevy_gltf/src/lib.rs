@@ -16,9 +16,9 @@ use bevy_scene::Scene;
 /// Adds support for glTF file loading to the app.
 #[derive(Default)]
 pub struct GltfPlugin;
-
+#[async_trait]
 impl Plugin for GltfPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.init_asset_loader::<GltfLoader>()
             .register_type::<GltfExtras>()
             .add_asset::<Gltf>()

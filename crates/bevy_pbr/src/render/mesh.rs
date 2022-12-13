@@ -53,7 +53,7 @@ pub const MESH_SHADER_HANDLE: HandleUntyped =
     HandleUntyped::weak_from_u64(Shader::TYPE_UUID, 3252377289100772450);
 pub const SKINNING_HANDLE: HandleUntyped =
     HandleUntyped::weak_from_u64(Shader::TYPE_UUID, 13215291596265391738);
-
+#[async_trait]
 impl Plugin for MeshRenderPlugin {
     fn build(&self, app: &mut bevy_app::App) {
         load_internal_asset!(

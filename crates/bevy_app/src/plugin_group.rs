@@ -22,7 +22,7 @@ pub struct PluginGroupBuilder {
     plugins: HashMap<TypeId, PluginEntry>,
     order: Vec<TypeId>,
 }
-
+#[async_trait]
 impl PluginGroupBuilder {
     /// Finds the index of a target [`Plugin`]. Panics if the target's [`TypeId`] is not found.
     fn index_of<Target: Plugin>(&mut self) -> usize {
@@ -127,7 +127,7 @@ impl PluginGroupBuilder {
 
     /// Consumes the [`PluginGroupBuilder`] and [builds](Plugin::build) the contained [`Plugin`]s
     /// in the order specified.
-    pub fn finish(self, app: &mut App) {
+    pub async fn finish(self, app: &mut App) {
         for ty in &self.order {
             if let Some(entry) = self.plugins.get(ty) {
                 if entry.enabled {
@@ -150,29 +150,34 @@ impl PluginGroupBuilder {
 /// ```
 #[doc(hidden)]
 pub struct NoopPluginGroup;
-
+#[async_trait]
 impl PluginGroup for NoopPluginGroup {
     fn build(&mut self, _: &mut PluginGroupBuilder) {}
 }
 
 #[cfg(test)]
 mod tests {
+    use async_trait::async_trait;
+
     use super::PluginGroupBuilder;
     use crate::{App, Plugin};
 
     struct PluginA;
+    #[async_trait]
     impl Plugin for PluginA {
-        fn build(&self, _: &mut App) {}
+        async fn build(&self, _: &mut App) {}
     }
 
     struct PluginB;
+    #[async_trait]
     impl Plugin for PluginB {
-        fn build(&self, _: &mut App) {}
+        async fn build(&self, _: &mut App) {}
     }
 
     struct PluginC;
+    #[async_trait]
     impl Plugin for PluginC {
-        fn build(&self, _: &mut App) {}
+        async fn build(&self, _: &mut App) {}
     }
 
     #[test]

@@ -27,9 +27,9 @@ impl Default for LogDiagnosticsPlugin {
         }
     }
 }
-
+#[async_trait]
 impl Plugin for LogDiagnosticsPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.insert_resource(LogDiagnosticsState {
             timer: Timer::new(self.wait_duration, true),
             filter: self.filter.clone(),

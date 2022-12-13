@@ -20,7 +20,7 @@ fn main() {
 
 /// A group of plugins that produce the "hello world" behavior
 pub struct HelloWorldPlugins;
-
+#[async_trait]
 impl PluginGroup for HelloWorldPlugins {
     fn build(&mut self, group: &mut PluginGroupBuilder) {
         group.add(PrintHelloPlugin).add(PrintWorldPlugin);
@@ -28,9 +28,9 @@ impl PluginGroup for HelloWorldPlugins {
 }
 
 pub struct PrintHelloPlugin;
-
+#[async_trait]
 impl Plugin for PrintHelloPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.add_system(print_hello_system);
     }
 }
@@ -40,9 +40,9 @@ fn print_hello_system() {
 }
 
 pub struct PrintWorldPlugin;
-
+#[async_trait]
 impl Plugin for PrintWorldPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.add_system(print_world_system);
     }
 }

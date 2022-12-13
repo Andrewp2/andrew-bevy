@@ -63,9 +63,9 @@ fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
 }
 
 pub struct GameOfLifeComputePlugin;
-
+#[async_trait]
 impl Plugin for GameOfLifeComputePlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         // Extract the game of life image resource from the main world into the render world
         // for operation on by the compute shader and display on the sprite.
         app.add_plugin(ExtractResourcePlugin::<GameOfLifeImage>::default());

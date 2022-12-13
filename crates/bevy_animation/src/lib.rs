@@ -288,9 +288,9 @@ pub fn animation_player(
 /// Adds animation support to an app
 #[derive(Default)]
 pub struct AnimationPlugin {}
-
+#[async_trait]
 impl Plugin for AnimationPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.add_asset::<AnimationClip>()
             .register_type::<AnimationPlayer>()
             .add_system_to_stage(

@@ -117,10 +117,10 @@ pub mod main_graph {
 /// A Label for the rendering sub-app.
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, AppLabel)]
 pub struct RenderApp;
-
+#[async_trait]
 impl Plugin for RenderPlugin {
     /// Initializes the renderer, sets up the [`RenderStage`](RenderStage) and creates the rendering sub-app.
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         let options = app
             .world
             .get_resource::<settings::WgpuSettings>()

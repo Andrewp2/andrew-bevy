@@ -106,9 +106,9 @@ impl Default for LogSettings {
         }
     }
 }
-
+#[async_trait]
 impl Plugin for LogPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         #[cfg(feature = "trace")]
         {
             let old_handler = panic::take_hook();

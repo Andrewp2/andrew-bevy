@@ -62,9 +62,9 @@ impl ScheduleRunnerSettings {
 /// [`RunMode`].
 #[derive(Default)]
 pub struct ScheduleRunnerPlugin;
-
+#[async_trait]
 impl Plugin for ScheduleRunnerPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         let settings = app
             .world
             .get_resource_or_insert_with(ScheduleRunnerSettings::default)

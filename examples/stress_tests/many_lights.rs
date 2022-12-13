@@ -142,9 +142,9 @@ fn print_light_count(time: Res<Time>, mut timer: Local<PrintingTimer>, lights: Q
 }
 
 struct LogVisibleLights;
-
+#[async_trait]
 impl Plugin for LogVisibleLights {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         let render_app = match app.get_sub_app_mut(RenderApp) {
             Ok(render_app) => render_app,
             Err(_) => return,

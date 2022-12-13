@@ -64,7 +64,7 @@ impl<T: Asset> Default for HandleMap<T> {
         }
     }
 }
-
+#[async_trait]
 impl Plugin for DebugAssetServerPlugin {
     fn build(&self, app: &mut bevy_app::App) {
         IoTaskPool::init(|| {

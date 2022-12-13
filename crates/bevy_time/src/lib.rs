@@ -30,9 +30,9 @@ pub struct TimePlugin;
 /// Updates the elapsed time. Any system that interacts with [Time] component should run after
 /// this.
 pub struct TimeSystem;
-
+#[async_trait]
 impl Plugin for TimePlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.init_resource::<Time>()
             .init_resource::<FixedTimesteps>()
             .register_type::<Timer>()

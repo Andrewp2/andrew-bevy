@@ -17,9 +17,9 @@ use bevy_render::extract_resource::ExtractResourcePlugin;
 
 #[derive(Default)]
 pub struct CorePipelinePlugin;
-
+#[async_trait]
 impl Plugin for CorePipelinePlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.register_type::<ClearColor>()
             .init_resource::<ClearColor>()
             .add_plugin(ExtractResourcePlugin::<ClearColor>::default())

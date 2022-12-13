@@ -40,9 +40,9 @@ pub struct InputPlugin;
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, SystemLabel)]
 pub struct InputSystem;
-
+#[async_trait]
 impl Plugin for InputPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app
             // keyboard
             .add_event::<KeyboardInput>()

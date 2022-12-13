@@ -69,9 +69,9 @@ impl Default for WindowSettings {
 /// A [`Plugin`] that defines an interface for windowing support in Bevy.
 #[derive(Default)]
 pub struct WindowPlugin;
-
+#[async_trait]
 impl Plugin for WindowPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.add_event::<WindowResized>()
             .add_event::<CreateWindow>()
             .add_event::<WindowCreated>()

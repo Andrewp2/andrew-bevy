@@ -86,9 +86,9 @@ pub enum TransformSystem {
 /// The base plugin for handling [`Transform`] components
 #[derive(Default)]
 pub struct TransformPlugin;
-
+#[async_trait]
 impl Plugin for TransformPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.register_type::<Transform>()
             .register_type::<GlobalTransform>()
             // add transform systems to startup so the first update is "correct"

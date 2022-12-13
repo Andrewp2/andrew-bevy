@@ -39,9 +39,9 @@ use bevy_render::{
 use bevy_utils::{FloatOrd, HashMap};
 
 pub struct Core3dPlugin;
-
+#[async_trait]
 impl Plugin for Core3dPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.register_type::<Camera3d>()
             .add_plugin(ExtractComponentPlugin::<Camera3d>::default());
 

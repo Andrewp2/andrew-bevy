@@ -46,9 +46,9 @@ pub enum UiSystem {
     /// After this label, input interactions with UI entities have been updated for this frame
     Focus,
 }
-
+#[async_trait]
 impl Plugin for UiPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.add_plugin(ExtractComponentPlugin::<UiCameraConfig>::default())
             .init_resource::<FlexSurface>()
             .register_type::<AlignContent>()

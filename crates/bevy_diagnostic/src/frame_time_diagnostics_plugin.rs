@@ -10,7 +10,7 @@ pub struct FrameTimeDiagnosticsPlugin;
 pub struct FrameTimeDiagnosticsState {
     frame_count: u64,
 }
-
+#[async_trait]
 impl Plugin for FrameTimeDiagnosticsPlugin {
     fn build(&self, app: &mut bevy_app::App) {
         app.add_startup_system(Self::setup_system)

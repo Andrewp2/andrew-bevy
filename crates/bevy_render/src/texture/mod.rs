@@ -37,9 +37,9 @@ use bevy_asset::{AddAsset, Assets};
 // TODO: replace Texture names with Image names?
 /// Adds the [`Image`] as an asset and makes sure that they are extracted and prepared for the GPU.
 pub struct ImagePlugin;
-
+#[async_trait]
 impl Plugin for ImagePlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         #[cfg(any(
             feature = "png",
             feature = "dds",

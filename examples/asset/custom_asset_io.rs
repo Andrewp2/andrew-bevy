@@ -48,9 +48,9 @@ impl AssetIo for CustomAssetIo {
 
 /// A plugin used to execute the override of the asset io
 struct CustomAssetIoPlugin;
-
+#[async_trait]
 impl Plugin for CustomAssetIoPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         let asset_io = {
             // the platform default asset io requires a reference to the app
             // builder to find its configuration

@@ -23,10 +23,10 @@ pub struct PrintMessagePlugin {
     wait_duration: Duration,
     message: String,
 }
-
+#[async_trait]
 impl Plugin for PrintMessagePlugin {
     // this is where we set up our plugin
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         let state = PrintMessageState {
             message: self.message.clone(),
             timer: Timer::new(self.wait_duration, true),

@@ -58,7 +58,7 @@ pub struct App {
     /// the application's event loop and advancing the [`Schedule`].
     /// Typically, it is not configured manually, but set by one of Bevy's built-in plugins.
     /// See `bevy::winit::WinitPlugin` and [`ScheduleRunnerPlugin`](crate::schedule_runner::ScheduleRunnerPlugin).
-    pub runner: Box<dyn Fn(App)>,
+    pub runner: Box<dyn Fn(App) + Send>,
     /// A container of [`Stage`]s set to be run in a linear order.
     pub schedule: Schedule,
     sub_apps: HashMap<AppLabelId, SubApp>,
@@ -67,7 +67,7 @@ pub struct App {
 /// Each `SubApp` has its own [`Schedule`] and [`World`], enabling a separation of concerns.
 struct SubApp {
     app: App,
-    runner: Box<dyn Fn(&mut World, &mut App)>,
+    runner: Box<dyn Fn(&mut World, &mut App) + Send>,
 }
 
 impl Default for App {
@@ -749,7 +749,7 @@ impl App {
     /// App::new()
     ///     .set_runner(my_runner);
     /// ```
-    pub fn set_runner(&mut self, run_fn: impl Fn(App) + 'static) -> &mut Self {
+    pub fn set_runner(&mut self, run_fn: impl Fn(App) + Send + 'static) -> &mut Self {
         self.runner = Box::new(run_fn);
         self
     }
@@ -773,17 +773,17 @@ impl App {
     /// #     #[derive(Default)]
     /// #     pub struct LogPlugin;
     /// #     impl Plugin for LogPlugin{
-    /// #        fn build(&self, app: &mut App) {}
+    /// #        async fn build(&self, app: &mut App) {}
     /// #     }
     /// # }
     /// App::new().add_plugin(bevy_log::LogPlugin::default());
     /// ```
-    pub fn add_plugin<T>(&mut self, plugin: T) -> &mut Self
+    pub async fn add_plugin<T>(&mut self, plugin: T) -> &mut Self
     where
         T: Plugin,
     {
         debug!("added plugin: {}", plugin.name());
-        plugin.build(self);
+        plugin.build(self).await;
         self
     }
 
@@ -830,7 +830,7 @@ impl App {
     /// #     #[derive(Default)]
     /// #     pub struct LogPlugin;
     /// #     impl Plugin for LogPlugin{
-    /// #        fn build(&self, app: &mut App) {}
+    /// #        async fn build(&self, app: &mut App) {}
     /// #     }
     /// # }
     /// # struct DefaultPlugins;
@@ -850,7 +850,7 @@ impl App {
     ///             group.add_before::<bevy_log::LogPlugin, _>(MyOwnPlugin)
     ///         });
     /// ```
-    pub fn add_plugins_with<T, F>(&mut self, mut group: T, func: F) -> &mut Self
+    pub async fn add_plugins_with<T, F>(&mut self, mut group: T, func: F) -> &mut Self
     where
         T: PluginGroup,
         F: FnOnce(&mut PluginGroupBuilder) -> &mut PluginGroupBuilder,
@@ -858,7 +858,7 @@ impl App {
         let mut plugin_group_builder = PluginGroupBuilder::default();
         group.build(&mut plugin_group_builder);
         func(&mut plugin_group_builder);
-        plugin_group_builder.finish(self);
+        plugin_group_builder.finish(self).await;
         self
     }
 
@@ -921,7 +921,7 @@ impl App {
         &mut self,
         label: impl AppLabel,
         app: App,
-        sub_app_runner: impl Fn(&mut World, &mut App) + 'static,
+        sub_app_runner: impl Fn(&mut World, &mut App) + Send + 'static,
     ) -> &mut Self {
         self.sub_apps.insert(
             label.as_label(),

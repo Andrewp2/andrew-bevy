@@ -17,9 +17,9 @@ use bevy_app::{App, Plugin};
 
 #[derive(Default)]
 pub struct CameraPlugin;
-
+#[async_trait]
 impl Plugin for CameraPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.register_type::<Camera>()
             .register_type::<Visibility>()
             .register_type::<ComputedVisibility>()

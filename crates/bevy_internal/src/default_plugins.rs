@@ -23,7 +23,7 @@ use bevy_app::{PluginGroup, PluginGroupBuilder};
 ///
 /// See also [`MinimalPlugins`] for a slimmed down option
 pub struct DefaultPlugins;
-
+#[async_trait]
 impl PluginGroup for DefaultPlugins {
     fn build(&mut self, group: &mut PluginGroupBuilder) {
         group.add(bevy_log::LogPlugin::default());
@@ -88,7 +88,7 @@ impl PluginGroup for DefaultPlugins {
 ///
 /// See also [`DefaultPlugins`] for a more complete set of plugins
 pub struct MinimalPlugins;
-
+#[async_trait]
 impl PluginGroup for MinimalPlugins {
     fn build(&mut self, group: &mut PluginGroupBuilder) {
         group.add(bevy_core::CorePlugin::default());

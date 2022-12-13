@@ -27,9 +27,9 @@ use bevy_app::prelude::*;
 /// The base plugin for handling [`Parent`] and [`Children`] components
 #[derive(Default)]
 pub struct HierarchyPlugin;
-
+#[async_trait]
 impl Plugin for HierarchyPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.register_type::<Children>()
             .register_type::<Parent>()
             .add_event::<HierarchyEvent>();

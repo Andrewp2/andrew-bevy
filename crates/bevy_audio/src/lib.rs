@@ -44,9 +44,9 @@ use bevy_asset::AddAsset;
 /// Use the [`Audio`] resource to play audio.
 #[derive(Default)]
 pub struct AudioPlugin;
-
+#[async_trait]
 impl Plugin for AudioPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.init_non_send_resource::<AudioOutput<AudioSource>>()
             .add_asset::<AudioSource>()
             .add_asset::<AudioSink>()

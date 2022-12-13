@@ -49,9 +49,9 @@ pub const SPRITE_SHADER_HANDLE: HandleUntyped =
 pub enum SpriteSystem {
     ExtractSprites,
 }
-
+#[async_trait]
 impl Plugin for SpritePlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         let mut shaders = app.world.resource_mut::<Assets<Shader>>();
         let sprite_shader = Shader::from_wgsl(include_str!("render/sprite.wgsl"));
         shaders.set_untracked(SPRITE_SHADER_HANDLE, sprite_shader);

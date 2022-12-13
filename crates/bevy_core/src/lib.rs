@@ -22,9 +22,9 @@ use std::ops::Range;
 /// Adds core functionality to Apps.
 #[derive(Default)]
 pub struct CorePlugin;
-
+#[async_trait]
 impl Plugin for CorePlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         // Setup the default bevy task pools
         app.world
             .get_resource::<DefaultTaskPoolOptions>()

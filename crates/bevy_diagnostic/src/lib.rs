@@ -12,9 +12,9 @@ use bevy_app::prelude::*;
 /// Adds core diagnostics resources to an App.
 #[derive(Default)]
 pub struct DiagnosticsPlugin;
-
+#[async_trait]
 impl Plugin for DiagnosticsPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.init_resource::<Diagnostics>();
     }
 }

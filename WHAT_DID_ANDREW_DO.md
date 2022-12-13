@@ -1,0 +1,1 @@
+Made plugin initialization async for webgpu to work on web

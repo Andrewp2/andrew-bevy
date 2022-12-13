@@ -38,9 +38,9 @@ use winit::{
 
 #[derive(Default)]
 pub struct WinitPlugin;
-
+#[async_trait]
 impl Plugin for WinitPlugin {
-    fn build(&self, app: &mut App) {
+    async fn build(&self, app: &mut App) {
         app.init_non_send_resource::<WinitWindows>()
             .init_resource::<WinitSettings>()
             .set_runner(winit_runner)

@@ -26,7 +26,7 @@ pub const WIREFRAME_SHADER_HANDLE: HandleUntyped =
 
 #[derive(Debug, Default)]
 pub struct WireframePlugin;
-
+#[async_trait]
 impl Plugin for WireframePlugin {
     fn build(&self, app: &mut bevy_app::App) {
         load_internal_asset!(
