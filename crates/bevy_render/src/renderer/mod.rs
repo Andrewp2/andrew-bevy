@@ -15,7 +15,6 @@ use bevy_time::TimeSender;
 use bevy_utils::Instant;
 use std::sync::Arc;
 use wgpu::{AdapterInfo, Backends, CommandEncoder, Instance, Queue, RequestAdapterOptions};
-
 /// Updates the [`RenderGraph`] with all of its nodes and then runs it to render the entire frame.
 pub fn render_system(world: &mut World) {
     world.resource_scope(|world, mut graph: Mut<RenderGraph>| {
