@@ -97,9 +97,6 @@ pub async fn initialize_renderer(
     request_adapter_options: &RequestAdapterOptions<'_>,
 ) -> (RenderDevice, RenderQueue, AdapterInfo) {
     info!("request_adapter_options: {:?}", request_adapter_options);
-    instance
-        .enumerate_adapters(Backends::all())
-        .for_each(|adapter| info!("This adapter is available: {:?}", adapter));
     let adapter = instance
         .request_adapter(request_adapter_options)
         .await
