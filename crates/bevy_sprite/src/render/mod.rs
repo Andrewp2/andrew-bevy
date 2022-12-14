@@ -72,7 +72,7 @@ impl FromWorld for SpritePipeline {
                 BindGroupLayoutEntry {
                     binding: 1,
                     visibility: ShaderStages::FRAGMENT,
-                    ty: BindingType::Sampler(SamplerBindingType::NonFiltering),
+                    ty: BindingType::Sampler(SamplerBindingType::Filtering),
                     count: None,
                 },
             ],
