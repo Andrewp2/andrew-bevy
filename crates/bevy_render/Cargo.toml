@@ -49,7 +49,8 @@ bevy_utils = { path = "../bevy_utils", version = "0.8.0" }
 image = { version = "0.24", default-features = false }
 
 # misc
-wgpu = { version = "0.13.2", features = ["spirv"] }
+wgpu = { git = "https://github.com/Andrewp2/wgpu", rev="e2410174b545ba9a8134a0e72a740eb8c11e9cad", features = ["spirv"]}
+#wgpu = { version = "0.13.1", features = ["spirv"] }
 codespan-reporting = "0.11.0"
 naga = { version = "0.9.0", features = ["glsl-in", "spv-in", "spv-out", "wgsl-in", "wgsl-out"] }
 serde = { version = "1", features = ["derive"] }
