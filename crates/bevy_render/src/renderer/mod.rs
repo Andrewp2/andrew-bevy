@@ -240,6 +240,8 @@ pub async fn initialize_renderer(
         };
     }
 
+    info!("Features: {:?}", features);
+    info!("Limits: {:?}", limits);
     let (device, queue) = adapter
         .request_device(
             &wgpu::DeviceDescriptor {
