@@ -1,3 +1,4 @@
+use bevy_utils::NonSendBoxedFuture;
 use downcast_rs::{impl_downcast, Downcast};
 
 use crate::App;
@@ -16,6 +17,11 @@ use std::any::Any;
 pub trait Plugin: Downcast + Any + Send + Sync {
     /// Configures the [`App`] to which this plugin is added.
     fn build(&self, app: &mut App);
+
+    fn build_async<'a>(&'a self, app: &'a mut App) -> NonSendBoxedFuture<'a, Result<(), ()>> {
+        self.build(app);
+        Box::pin(async move { Ok(()) })
+    }
 
     /// Runs after all plugins are built, but before the app runner is called.
     /// This can be useful if you have some resource that other plugins need during their build step,

@@ -11,7 +11,7 @@ use bevy_ecs::{
         ScheduleLabel,
     },
 };
-use bevy_utils::{tracing::debug, HashMap, HashSet};
+use bevy_utils::{tracing::debug, HashMap, HashSet, NonSendBoxedFuture};
 use std::fmt::Debug;
 
 #[cfg(feature = "trace")]
@@ -747,6 +747,27 @@ impl App {
                 "Error adding plugin {plugin_name}: : plugin was already added in application"
             ),
         }
+    }
+
+    pub fn add_plugin_async<'a, T>(
+        &'a mut self,
+        plugin: &'a T,
+    ) -> NonSendBoxedFuture<'a, Result<&'a mut Self, ()>>
+    where
+        T: Plugin,
+    {
+        Box::pin(async move {
+            plugin.build_async(self).await;
+            Ok(self)
+        })
+    }
+
+    pub fn add_plugins_async<'a, T: PluginGroup>(
+        &'a mut self,
+        mut group: T,
+    ) -> NonSendBoxedFuture<'a, Result<&'a mut Self, ()>> {
+        let builder = group.build();
+        Box::pin(async move { builder.finish_async(self).await })
     }
 
     /// Boxed variant of `add_plugin`, can be used from a [`PluginGroup`]

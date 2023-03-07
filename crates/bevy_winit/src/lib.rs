@@ -271,6 +271,36 @@ impl Default for WinitPersistentState {
 }
 
 pub fn winit_runner(mut app: App) {
+    #[cfg(not(target_arch = "wasm32"))]
+    winit_runner_with(app);
+    // TODO: Check if this is necessary
+    #[cfg(target_arg = "wasm32")]
+    {
+        use wasm_bindgen::{prelude::*, JsCast};
+        let start_closure = Closure::once_into_js(move || winit_runner_with(app));
+
+        // // make sure to handle JS exceptions thrown inside start.
+        // // Otherwise wasm_bindgen_futures Queue would break and never handle any tasks again.
+        // // This is required, because winit uses JS exception for control flow to escape from `run`.
+        if let Err(error) = call_catch(&start_closure) {
+            let is_control_flow_exception = error.dyn_ref::<js_sys::Error>().map_or(false, |e| {
+                e.message().includes("Using exceptions for control flow", 0)
+            });
+
+            if !is_control_flow_exception {
+                web_sys::console::error_1(&error);
+            }
+        }
+
+        #[wasm_bindgen]
+        extern "C" {
+            #[wasm_bindgen(catch, js_namespace = Function, js_name = "prototype.call.call")]
+            fn call_catch(this: &JsValue) -> Result<(), JsValue>;
+        }
+    }
+}
+
+pub fn winit_runner_with(mut app: App) {
     // We remove this so that we have ownership over it.
     let mut event_loop = app
         .world

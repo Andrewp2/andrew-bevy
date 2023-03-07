@@ -2,6 +2,7 @@
 #![doc = include_str!("../README.md")]
 
 mod slice;
+use futures_lite::Future;
 pub use slice::{ParallelSlice, ParallelSliceMut};
 
 mod task;
@@ -52,4 +53,12 @@ pub fn available_parallelism() -> usize {
     std::thread::available_parallelism()
         .map(NonZeroUsize::get)
         .unwrap_or(1)
+}
+
+pub fn run_async<T: 'static>(future: impl Future<Output = T> + 'static) {
+    #[cfg(target_arch = "wasm32")]
+    TaskPool::default().spawn_local(future);
+
+    #[cfg(not(target_arch = "wasm32"))]
+    futures_lite::future::block_on(future);
 }

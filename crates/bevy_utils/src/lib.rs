@@ -47,8 +47,10 @@ use std::{
 #[cfg(not(target_arch = "wasm32"))]
 pub type BoxedFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
 
+pub type NonSendBoxedFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a>>;
+
 #[cfg(target_arch = "wasm32")]
-pub type BoxedFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a>>;
+pub type BoxedFuture<'a, T> = NonSendBoxedFuture<'a, T>;
 
 /// A shortcut alias for [`hashbrown::hash_map::Entry`].
 pub type Entry<'a, K, V> = hashbrown::hash_map::Entry<'a, K, V, RandomState>;
