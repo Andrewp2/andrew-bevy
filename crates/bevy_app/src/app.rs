@@ -751,7 +751,7 @@ impl App {
 
     pub fn add_plugin_async<'a, T>(
         &'a mut self,
-        plugin: &'a T,
+        plugin: T,
     ) -> NonSendBoxedFuture<'a, Result<&'a mut Self, ()>>
     where
         T: Plugin,
