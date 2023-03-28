@@ -191,6 +191,8 @@ impl PluginGroupBuilder {
         }
     }
 
+    /// Consumes the [`PluginGroupBuilder`] and [asynchronously builds](Plugin::build_async) the contained [`Plugin`]s
+    /// in the order specified.
     pub fn finish_async<'a>(
         self,
         app: &'a mut App,

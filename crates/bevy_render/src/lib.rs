@@ -171,92 +171,96 @@ pub mod main_graph {
 pub struct RenderApp;
 
 impl Plugin for RenderPlugin {
-    /// Initializes the renderer, sets up the [`RenderSet`](RenderSet) and creates the rendering sub-app.
-    fn build(&self, app: &mut App) {
-        app.add_asset::<Shader>()
-            .add_debug_asset::<Shader>()
-            .init_asset_loader::<ShaderLoader>()
-            .init_debug_asset_loader::<ShaderLoader>();
+    fn build_async<'a>(
+        &'a self,
+        app: &'a mut App,
+    ) -> bevy_utils::NonSendBoxedFuture<'a, Result<(), ()>> {
+        Box::pin(async move {
+            app.add_asset::<Shader>()
+                .add_debug_asset::<Shader>()
+                .init_asset_loader::<ShaderLoader>()
+                .init_debug_asset_loader::<ShaderLoader>();
 
-        let mut system_state: SystemState<Query<&RawHandleWrapper, With<PrimaryWindow>>> =
-            SystemState::new(&mut app.world);
-        let primary_window = system_state.get(&app.world);
+            let mut system_state: SystemState<Query<&RawHandleWrapper, With<PrimaryWindow>>> =
+                SystemState::new(&mut app.world);
+            let primary_window = system_state.get(&app.world);
 
-        if let Some(backends) = self.wgpu_settings.backends {
-            let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
-                backends,
-                dx12_shader_compiler: self.wgpu_settings.dx12_shader_compiler.clone(),
-            });
-            let surface = primary_window.get_single().ok().map(|wrapper| unsafe {
-                // SAFETY: Plugins should be set up on the main thread.
-                let handle = wrapper.get_handle();
-                instance
-                    .create_surface(&handle)
-                    .expect("Failed to create wgpu surface")
-            });
+            if let Some(backends) = self.wgpu_settings.backends {
+                let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+                    backends,
+                    dx12_shader_compiler: self.wgpu_settings.dx12_shader_compiler.clone(),
+                });
+                let surface = primary_window.get_single().ok().map(|wrapper| unsafe {
+                    // SAFETY: Plugins should be set up on the main thread.
+                    let handle = wrapper.get_handle();
+                    instance
+                        .create_surface(&handle)
+                        .expect("Failed to create wgpu surface")
+                });
 
-            let request_adapter_options = wgpu::RequestAdapterOptions {
-                power_preference: self.wgpu_settings.power_preference,
-                compatible_surface: surface.as_ref(),
-                ..Default::default()
-            };
-            let (device, queue, adapter_info, render_adapter) =
-                futures_lite::future::block_on(renderer::initialize_renderer(
+                let request_adapter_options = wgpu::RequestAdapterOptions {
+                    power_preference: self.wgpu_settings.power_preference,
+                    compatible_surface: surface.as_ref(),
+                    ..Default::default()
+                };
+                let (device, queue, adapter_info, render_adapter) = renderer::initialize_renderer(
                     &instance,
                     &self.wgpu_settings,
                     &request_adapter_options,
-                ));
-            debug!("Configured wgpu adapter Limits: {:#?}", device.limits());
-            debug!("Configured wgpu adapter Features: {:#?}", device.features());
-            app.insert_resource(device.clone())
-                .insert_resource(queue.clone())
-                .insert_resource(adapter_info.clone())
-                .insert_resource(render_adapter.clone())
-                .init_resource::<ScratchMainWorld>();
+                )
+                .await;
+                debug!("Configured wgpu adapter Limits: {:#?}", device.limits());
+                debug!("Configured wgpu adapter Features: {:#?}", device.features());
+                app.insert_resource(device.clone())
+                    .insert_resource(queue.clone())
+                    .insert_resource(adapter_info.clone())
+                    .insert_resource(render_adapter.clone())
+                    .init_resource::<ScratchMainWorld>();
 
-            let pipeline_cache = PipelineCache::new(device.clone());
-            let asset_server = app.world.resource::<AssetServer>().clone();
+                let pipeline_cache = PipelineCache::new(device.clone());
+                let asset_server = app.world.resource::<AssetServer>().clone();
 
-            let mut render_app = App::empty();
-            render_app.add_simple_outer_schedule();
-            let mut render_schedule = RenderSet::base_schedule();
+                let mut render_app = App::empty();
+                render_app.add_simple_outer_schedule();
+                let mut render_schedule = RenderSet::base_schedule();
 
-            // Prepare the schedule which extracts data from the main world to the render world
-            render_app.edit_schedule(ExtractSchedule, |schedule| {
-                schedule
-                    .set_apply_final_buffers(false)
-                    .add_system(PipelineCache::extract_shaders);
-            });
+                // Prepare the schedule which extracts data from the main world to the render world
+                render_app.edit_schedule(ExtractSchedule, |schedule| {
+                    schedule
+                        .set_apply_final_buffers(false)
+                        .add_system(PipelineCache::extract_shaders);
+                });
 
-            // This set applies the commands from the extract stage while the render schedule
-            // is running in parallel with the main app.
-            render_schedule.add_system(apply_extract_commands.in_set(RenderSet::ExtractCommands));
+                // This set applies the commands from the extract stage while the render schedule
+                // is running in parallel with the main app.
+                render_schedule
+                    .add_system(apply_extract_commands.in_set(RenderSet::ExtractCommands));
 
-            render_schedule.add_system(
-                PipelineCache::process_pipeline_queue_system
-                    .before(render_system)
-                    .in_set(RenderSet::Render),
-            );
-            render_schedule.add_system(render_system.in_set(RenderSet::Render));
+                render_schedule.add_system(
+                    PipelineCache::process_pipeline_queue_system
+                        .before(render_system)
+                        .in_set(RenderSet::Render),
+                );
+                render_schedule.add_system(render_system.in_set(RenderSet::Render));
 
-            render_schedule.add_system(World::clear_entities.in_set(RenderSet::Cleanup));
+                render_schedule.add_system(World::clear_entities.in_set(RenderSet::Cleanup));
 
-            render_app
-                .add_schedule(CoreSchedule::Main, render_schedule)
-                .init_resource::<render_graph::RenderGraph>()
-                .insert_resource(RenderInstance(instance))
-                .insert_resource(device)
-                .insert_resource(queue)
-                .insert_resource(render_adapter)
-                .insert_resource(adapter_info)
-                .insert_resource(pipeline_cache)
-                .insert_resource(asset_server);
+                render_app
+                    .add_schedule(CoreSchedule::Main, render_schedule)
+                    .init_resource::<render_graph::RenderGraph>()
+                    .insert_resource(RenderInstance(instance))
+                    .insert_resource(device)
+                    .insert_resource(queue)
+                    .insert_resource(render_adapter)
+                    .insert_resource(adapter_info)
+                    .insert_resource(pipeline_cache)
+                    .insert_resource(asset_server);
 
-            let (sender, receiver) = bevy_time::create_time_channels();
-            app.insert_resource(receiver);
-            render_app.insert_resource(sender);
+                let (sender, receiver) = bevy_time::create_time_channels();
+                app.insert_resource(receiver);
+                render_app.insert_resource(sender);
 
-            app.insert_sub_app(RenderApp, SubApp::new(render_app, move |main_world, render_app| {
+                app.insert_sub_app(RenderApp, SubApp::new(render_app, move |main_world, render_app| {
                 #[cfg(feature = "trace")]
                 let _render_span = bevy_utils::tracing::info_span!("extract main app to render subapp").entered();
                 {
@@ -287,20 +291,28 @@ impl Plugin for RenderPlugin {
                 // run extract schedule
                 extract(main_world, render_app);
             }));
-        }
+            }
 
-        app.add_plugin(ValidParentCheckPlugin::<view::ComputedVisibility>::default())
-            .add_plugin(WindowRenderPlugin)
-            .add_plugin(CameraPlugin)
-            .add_plugin(ViewPlugin)
-            .add_plugin(MeshPlugin)
-            .add_plugin(GlobalsPlugin);
+            app.add_plugin(ValidParentCheckPlugin::<view::ComputedVisibility>::default())
+                .add_plugin(WindowRenderPlugin)
+                .add_plugin(CameraPlugin)
+                .add_plugin(ViewPlugin)
+                .add_plugin(MeshPlugin)
+                .add_plugin(GlobalsPlugin);
 
-        app.register_type::<color::Color>()
-            .register_type::<primitives::Aabb>()
-            .register_type::<primitives::CascadesFrusta>()
-            .register_type::<primitives::CubemapFrusta>()
-            .register_type::<primitives::Frustum>();
+            app.register_type::<color::Color>()
+                .register_type::<primitives::Aabb>()
+                .register_type::<primitives::CascadesFrusta>()
+                .register_type::<primitives::CubemapFrusta>()
+                .register_type::<primitives::Frustum>();
+            Ok(())
+        })
+    }
+
+    /// Initializes the renderer, sets up the [`RenderSet`](RenderSet) and creates the rendering sub-app.
+    fn build(&self, app: &mut App) {
+        #[allow(unused_must_use)]
+        futures_lite::future::block_on(self.build_async(app));
     }
 }
 
