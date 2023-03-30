@@ -12,11 +12,6 @@ pub(crate) struct CanvasParentResizePlugin;
 impl Plugin for CanvasParentResizePlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<CanvasParentResizeEventChannel>();
-        web_sys::console::log_1(
-            &"init resource CanvasParentResizeEventChannel"
-                .to_string()
-                .into(),
-        );
         app.add_system(canvas_parent_resize_event_handler);
     }
 }
