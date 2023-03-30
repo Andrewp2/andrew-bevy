@@ -114,6 +114,8 @@ impl Plugin for WinitPlugin {
             ResMut<CanvasParentResizeEventChannel>,
         )> = SystemState::from_world(&mut app.world);
 
+        web_sys::console::log_1(&"build_winit_plugin 1".to_string().into());
+
         // And for ios and macos, we should not create window early, all ui related code should be executed inside
         // UIApplicationMain/NSApplicationMain.
         #[cfg(not(any(target_os = "android", target_os = "ios", target_os = "macos")))]
@@ -143,6 +145,8 @@ impl Plugin for WinitPlugin {
                 event_channel,
             ) = create_window_system_state.get_mut(&mut app.world);
 
+            web_sys::console::log_1(&"build_winit_plugin 2".to_string().into());
+
             // Here we need to create a winit-window and give it a WindowHandle which the renderer can use.
             // It needs to be spawned before the start of the startup-stage, so we cannot use a regular system.
             // Instead we need to create the window and spawn it using direct world access
@@ -161,6 +165,7 @@ impl Plugin for WinitPlugin {
         }
 
         create_window_system_state.apply(&mut app.world);
+        web_sys::console::log_1(&"build_winit_plugin 3".to_string().into());
     }
 }
 
@@ -168,6 +173,7 @@ fn run<F>(event_loop: EventLoop<()>, event_handler: F) -> !
 where
     F: 'static + FnMut(Event<'_, ()>, &EventLoopWindowTarget<()>, &mut ControlFlow),
 {
+    web_sys::console::log_1(&"run winit_plugin 1".to_string().into());
     event_loop.run(event_handler)
 }
 
@@ -271,25 +277,36 @@ impl Default for WinitPersistentState {
 }
 
 pub fn winit_runner(mut app: App) {
+    web_sys::console::log_1(&"winit_runner".to_string().into());
     #[cfg(not(target_arch = "wasm32"))]
     winit_runner_with(app);
     // TODO: Check if this is necessary
-    #[cfg(target_arg = "wasm32")]
+    #[cfg(target_arch = "wasm32")]
     {
+        web_sys::console::log_1(&"winit_runner 2".to_string().into());
         use wasm_bindgen::{prelude::*, JsCast};
         let start_closure = Closure::once_into_js(move || winit_runner_with(app));
+        web_sys::console::log_1(&"winit_runner 3".to_string().into());
 
         // // make sure to handle JS exceptions thrown inside start.
         // // Otherwise wasm_bindgen_futures Queue would break and never handle any tasks again.
         // // This is required, because winit uses JS exception for control flow to escape from `run`.
+        web_sys::console::log_1(&"winit_runner 4".to_string().into());
         if let Err(error) = call_catch(&start_closure) {
+            web_sys::console::log_1(&"winit_runner 5".to_string().into());
             let is_control_flow_exception = error.dyn_ref::<js_sys::Error>().map_or(false, |e| {
                 e.message().includes("Using exceptions for control flow", 0)
             });
 
             if !is_control_flow_exception {
                 web_sys::console::error_1(&error);
+            } else {
+                web_sys::console::log_1(
+                    &"control flow exception (this is fine)".to_string().into(),
+                );
             }
+        } else {
+            web_sys::console::log_1(&"what?".to_string().into());
         }
 
         #[wasm_bindgen]
@@ -301,6 +318,9 @@ pub fn winit_runner(mut app: App) {
 }
 
 pub fn winit_runner_with(mut app: App) {
+    for i in 0..10 {
+        web_sys::console::log_1(&"winit_runner_with 1".to_string().into());
+    }
     // We remove this so that we have ownership over it.
     let mut event_loop = app
         .world
@@ -346,6 +366,9 @@ pub fn winit_runner_with(mut app: App) {
     let event_handler = move |event: Event<()>,
                               event_loop: &EventLoopWindowTarget<()>,
                               control_flow: &mut ControlFlow| {
+        for i in 0..10 {
+            web_sys::console::log_1(&"winit_runner_with 2".to_string().into());
+        }
         #[cfg(feature = "trace")]
         let _span = bevy_utils::tracing::info_span!("winit event_handler").entered();
 

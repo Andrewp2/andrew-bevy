@@ -19,8 +19,10 @@ pub trait Plugin: Downcast + Any + Send + Sync {
     fn build(&self, app: &mut App);
 
     fn build_async<'a>(&'a self, app: &'a mut App) -> NonSendBoxedFuture<'a, Result<(), ()>> {
-        self.build(app);
-        Box::pin(async move { Ok(()) })
+        Box::pin(async move {
+            self.build(app);
+            Ok(())
+        })
     }
 
     /// Runs after all plugins are built, but before the app runner is called.

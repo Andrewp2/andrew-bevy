@@ -5,12 +5,19 @@ use crossbeam_channel::{Receiver, Sender};
 use wasm_bindgen::JsCast;
 use winit::dpi::LogicalSize;
 
+use crossbeam_channel::SendError;
+
 pub(crate) struct CanvasParentResizePlugin;
 
 impl Plugin for CanvasParentResizePlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<CanvasParentResizeEventChannel>()
-            .add_system(canvas_parent_resize_event_handler);
+        app.init_resource::<CanvasParentResizeEventChannel>();
+        web_sys::console::log_1(
+            &"init resource CanvasParentResizeEventChannel"
+                .to_string()
+                .into(),
+        );
+        app.add_system(canvas_parent_resize_event_handler);
     }
 }
 
@@ -63,7 +70,15 @@ impl CanvasParentResizeEventChannel {
         let owned_selector = selector.to_string();
         let resize = move || {
             if let Some(size) = get_size(&owned_selector) {
-                sender.send(ResizeEvent { size, window }).unwrap();
+                let x: Result<(), SendError<ResizeEvent>> =
+                    sender.send(ResizeEvent { size, window });
+                match x {
+                    Ok(_) => {}
+                    Err(e) => {
+                        panic!("The sender has closed, error: {}", e);
+                    }
+                }
+                //sender.send(ResizeEvent { size, window }).unwrap();
             }
         };
 

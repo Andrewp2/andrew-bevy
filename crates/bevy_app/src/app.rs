@@ -287,6 +287,9 @@ impl App {
     ///
     /// Panics if called from `Plugin::build()`, because it would prevent other plugins to properly build.
     pub fn run(&mut self) {
+        for i in 0..10 {
+            web_sys::console::log_1(&"run".to_string().into());
+        }
         #[cfg(feature = "trace")]
         let _bevy_app_run_span = info_span!("bevy_app").entered();
 
@@ -298,6 +301,9 @@ impl App {
         Self::setup(&mut app);
 
         let runner = std::mem::replace(&mut app.runner, Box::new(run_once));
+        for i in 0..10 {
+            web_sys::console::log_1(&"run 2".to_string().into());
+        }
         (runner)(app);
     }
 

@@ -55,6 +55,7 @@ use bevy_app::{App, AppLabel, CoreSchedule, Plugin, SubApp};
 use bevy_asset::{AddAsset, AssetServer};
 use bevy_ecs::{prelude::*, schedule::ScheduleLabel, system::SystemState};
 use bevy_utils::tracing::debug;
+use bevy_utils::tracing::error;
 use std::ops::{Deref, DerefMut};
 
 /// Contains the default Bevy rendering backend based on wgpu.
@@ -184,7 +185,6 @@ impl Plugin for RenderPlugin {
             let mut system_state: SystemState<Query<&RawHandleWrapper, With<PrimaryWindow>>> =
                 SystemState::new(&mut app.world);
             let primary_window = system_state.get(&app.world);
-
             if let Some(backends) = self.wgpu_settings.backends {
                 let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
                     backends,
@@ -197,6 +197,10 @@ impl Plugin for RenderPlugin {
                         .create_surface(&handle)
                         .expect("Failed to create wgpu surface")
                 });
+
+                if surface.is_none() {
+                    error!("Surface is none!");
+                }
 
                 let request_adapter_options = wgpu::RequestAdapterOptions {
                     power_preference: self.wgpu_settings.power_preference,

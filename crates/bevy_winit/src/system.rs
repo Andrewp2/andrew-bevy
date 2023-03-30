@@ -43,6 +43,7 @@ pub(crate) fn create_window<'a>(
     mut accessibility_requested: ResMut<AccessibilityRequested>,
     #[cfg(target_arch = "wasm32")] event_channel: ResMut<CanvasParentResizeEventChannel>,
 ) {
+    web_sys::console::log_1(&"create_window 1".to_string().into());
     for (entity, mut window) in created_windows {
         if winit_windows.get_window(entity).is_some() {
             continue;
@@ -77,8 +78,10 @@ pub(crate) fn create_window<'a>(
 
         #[cfg(target_arch = "wasm32")]
         {
+            web_sys::console::log_1(&"create_window 2".to_string().into());
             if window.fit_canvas_to_parent {
                 let selector = if let Some(selector) = &window.canvas {
+                    web_sys::console::log_1(&"create_window 3".to_string().into());
                     selector
                 } else {
                     WINIT_CANVAS_SELECTOR
@@ -86,9 +89,10 @@ pub(crate) fn create_window<'a>(
                 event_channel.listen_to_selector(entity, selector);
             }
         }
-
+        web_sys::console::log_1(&"create_window 4".to_string().into());
         event_writer.send(WindowCreated { window: entity });
     }
+    web_sys::console::log_1(&"create_window 5".to_string().into());
 }
 
 /// Cache for closing windows so we can get better debug information.
@@ -103,6 +107,8 @@ pub(crate) fn despawn_window(
 ) {
     for window in closed.iter() {
         info!("Closing window {:?}", window);
+        web_sys::console::log_1(&"closing window???".to_string().into());
+
         // Guard to verify that the window is in fact actually gone,
         // rather than having the component added and removed in the same frame.
         if !window_entities.contains(window) {
