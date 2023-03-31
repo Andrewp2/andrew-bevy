@@ -53,23 +53,23 @@ fn tonemap_curve3(v: vec3<f32>) -> vec3<f32> {
 }
 
 fn somewhat_boring_display_transform(col: vec3<f32>) -> vec3<f32> {
-    var col = col;
-    let ycbcr = rgb_to_ycbcr(col);
+    var col2 = col;
+    let ycbcr = rgb_to_ycbcr(col2);
 
     let bt = tonemap_curve(length(ycbcr.yz) * 2.4);
     var desat = max((bt - 0.7) * 0.8, 0.0);
     desat *= desat;
 
-    let desat_col = mix(col.rgb, ycbcr.xxx, desat);
+    let desat_col = mix(col2.rgb, ycbcr.xxx, desat);
 
     let tm_luma = tonemap_curve(ycbcr.x);
     let tm0 = col.rgb * max(0.0, tm_luma / max(1e-5, tonemapping_luminance(col.rgb)));
     let final_mult = 0.97;
     let tm1 = tonemap_curve3(desat_col);
 
-    col = mix(tm0, tm1, bt * bt);
+    col2 = mix(tm0, tm1, bt * bt);
 
-    return col * final_mult;
+    return col2 * final_mult;
 }
 
 // ------------------------------------------
@@ -110,7 +110,7 @@ fn RRTAndODTFit(v: vec3<f32>) -> vec3<f32> {
 }
 
 fn ACESFitted(color: vec3<f32>) -> vec3<f32> {    
-    var color = color;
+    var color2 = color;
 
     // sRGB => XYZ => D65_2_D60 => AP1 => RRT_SAT
     let rgb_to_rrt = mat3x3<f32>(
@@ -126,17 +126,17 @@ fn ACESFitted(color: vec3<f32>) -> vec3<f32> {
         vec3(-0.00327, -0.07276, 1.07602)
     );
 
-    color *= rgb_to_rrt;
+    color2 *= rgb_to_rrt;
 
     // Apply RRT and ODT
-    color = RRTAndODTFit(color);
+    color2 = RRTAndODTFit(color);
 
-    color *= odt_to_rgb;
+    color2 *= odt_to_rgb;
 
     // Clamp to [0, 1]
-    color = saturate(color);
+    color2 = saturate(color2);
 
-    return color;
+    return color2;
 }
 
 // -------------------------------
@@ -171,30 +171,30 @@ fn convertOpenDomainToNormalizedLog2(color: vec3<f32>, minimum_ev: f32, maximum_
     let in_midgrey = 0.18;
 
     // remove negative before log transform
-    var color = max(vec3(0.0), color);
+    var color2 = max(vec3(0.0), color);
     // avoid infinite issue with log -- ref[1]
-    color = select(color, 0.00001525878 + color, color  < 0.00003051757);
-    color = clamp(
+    color2 = select(color2, 0.00001525878 + color2, color2  < vec3<f32>(0.00003051757));
+    color2 = clamp(
         log2(color / in_midgrey),
         vec3(minimum_ev),
         vec3(maximum_ev)
     );
     let total_exposure = maximum_ev - minimum_ev;
 
-    return (color - minimum_ev) / total_exposure;
+    return (color2 - minimum_ev) / total_exposure;
 }
 
 // Inverse of above
 fn convertNormalizedLog2ToOpenDomain(color: vec3<f32>, minimum_ev: f32, maximum_ev: f32) -> vec3<f32> {
-    var color = color;
+    var color2 = color;
     let in_midgrey = 0.18;
     let total_exposure = maximum_ev - minimum_ev;
 
-    color = (color * total_exposure) + minimum_ev;
-    color = pow(vec3(2.0), color);
-    color = color * in_midgrey;
+    color2 = (color2 * total_exposure) + minimum_ev;
+    color2 = pow(vec3(2.0), color2);
+    color2 = color2 * in_midgrey;
 
-    return color;
+    return color2;
 }
 
 
@@ -204,16 +204,16 @@ fn convertNormalizedLog2ToOpenDomain(color: vec3<f32>, minimum_ev: f32, maximum_
 
 // Prepare the data for display encoding. Converted to log domain.
 fn applyAgXLog(Image: vec3<f32>) -> vec3<f32> {
-    var Image = max(vec3(0.0), Image); // clamp negatives
-    let r = dot(Image, vec3(0.84247906, 0.0784336, 0.07922375));
-    let g = dot(Image, vec3(0.04232824, 0.87846864, 0.07916613));
-    let b = dot(Image, vec3(0.04237565, 0.0784336, 0.87914297));
-    Image = vec3(r, g, b);
+    var Image2 = max(vec3(0.0), Image); // clamp negatives
+    let r = dot(Image2, vec3(0.84247906, 0.0784336, 0.07922375));
+    let g = dot(Image2, vec3(0.04232824, 0.87846864, 0.07916613));
+    let b = dot(Image2, vec3(0.04237565, 0.0784336, 0.87914297));
+    Image2 = vec3(r, g, b);
 
-    Image = convertOpenDomainToNormalizedLog2(Image, -10.0, 6.5);
+    Image2 = convertOpenDomainToNormalizedLog2(Image2, -10.0, 6.5);
     
-    Image = clamp(Image, vec3(0.0), vec3(1.0));
-    return Image;
+    Image2 = clamp(Image2, vec3(0.0), vec3(1.0));
+    return Image2;
 }
 
 fn applyLUT3D(Image: vec3<f32>, block_size: f32) -> vec3<f32> {
